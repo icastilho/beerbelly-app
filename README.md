@@ -5,7 +5,7 @@
 It is a simple Progressive Web App using polymer 2.0, Elasticseach and Firebase to social login
 
 ###
-[Live demo] 
+[Live demo](https://beerbelly-7202a.firebaseapp.com)
 
 ### Setup
 
