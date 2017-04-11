@@ -67,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .drawer-list a {
-        @apply(--iron-icon-fill-color)
+        @apply(--iron-icon-fill-color);
         @apply(--paper-font-menu);
         display: block;
         padding: 0 20px;
@@ -227,6 +227,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         };
       }
 
+      ready() {
+        super.ready();
+        if (!this.route.path) {
+          this.set('route.path', '/bb-search');
+        }
+      }
+
+
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
@@ -250,9 +258,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
 
         // If no page was found in the route data, page will be an empty string.
-        // Deault to 'bb-geolocation' in that case.
+        // Deault to 'bb-search' in that case.
         this.page = page || 'bb-search';
-
         // Close a non-persistent drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {
           this.$.drawer.close();
@@ -270,7 +277,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       _showPage404() {
-        this.page = 'view404';
+        this.page = 'bb-view404';
       }
     }
     window.customElements.define(BeerBellyApp.is, BeerBellyApp);
