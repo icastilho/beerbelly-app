@@ -1,0 +1,211 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-styles/default-theme.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="elasticsearch-script.html">
+
+
+<dom-module id="elastic-search">
+  <template>
+    <style include="iron-flex">
+      :host {
+        background: var(--background-color, white);
+        display: block;
+        padding: 0 16px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      .input-panel {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      .icon {
+        color: var(--disabled-text-color);
+        @apply(--icon-styles);
+      }
+
+      #input {
+        margin: 0 10px;
+        border: 0;
+        outline: 0;
+        padding: 16px 0;
+        cursor: text;
+        background: transparent;
+        color: inherit;
+        @apply(--input-styles);
+      }
+
+      #input[disabled] {
+        @apply(--disabled-input-styles);
+      }
+
+      .badge {
+        --paper-badge-background: var(--paper-red-500);
+        --paper-badge-opacity: 1;
+        --paper-badge-width: 18px;
+        --paper-badge-height: 18px;
+        --paper-badge-margin-left: -15px;
+        --paper-badge-margin-bottom: -15px;
+      }
+    </style>
+
+    <div class="input-panel flex">
+    <paper-input id="input"  type="search" value="{{query}}" event-enter="search" placeholder="[[placeholder]]"  class="flex">
+      <iron-icon icon="[[icon]]" slot="prefix" class="icon"></iron-icon>
+    </paper-input>
+    </div>
+
+
+  </template>
+
+  <script>
+    // Define the class for a new element called custom-element
+    class ElasticElement extends Polymer.Element {
+      static get is() { return 'elastic-search'; }
+
+      static get properties() {
+        return {
+
+          /**
+           * The shower at placeholder input
+           * Default: Type to search
+           */
+          placeholder: {
+            type: String,
+            value: 'Type to search',
+          },
+
+          /**
+           * Icon shown in the search background
+           */
+          icon: {
+            type: String,
+            value: 'search',
+          },
+
+          /* Client Configuration */
+          /**
+           * The hosts that this client will connect to
+           *
+           * It can either be URL string, or an object with the following properties
+           * For example:
+           *
+           *  URL: http://my-site.com:80/elasticsearch/
+           *
+           *  Or
+           *
+           *  host: {
+           *    protocol: 'https',
+           *     host: 'my-site.com',
+           *     port: 80,
+           *     path: '/elasticsearch/'
+           *   }
+           */
+          host: {
+            type: String,
+            reflectToAttribute: true,
+          },
+
+          /**
+           * The Log Level of Api
+           *
+           * It can be 'trace', 'debug', 'info', 'warning' or 'error'.
+           * Defaul value: info
+           */
+          log: {
+            type: String,
+            reflectToAttribute: true,
+            value: 'info',
+          },
+
+          /* Query properties */
+
+          /**
+           *
+           */
+          index: {
+            type: String,
+            value: null,
+          },
+
+          /**
+           *
+           */
+          type: {
+            type: String,
+            value: null,
+          },
+
+          /**
+           *
+           */
+          query: {
+            type: String,
+            value: '',
+            reflectToAttribute: true,
+            observer: '_search',
+          },
+
+          /**
+           * The response of request
+           * It is an object representing the response
+           * You should targer that property to your host element's property
+           * For Example:
+           * <elastic-search response="{{myResponse}}"></elastic-search>
+           */
+          response: {
+            type: Object,
+            notify: true,
+            value: null,
+          },
+
+          /**
+           * The list of items returned in search
+           * You should targer that property to your host element's property
+           * For Example:
+           * <elastic-search items="{{myItens}}"></elastic-search>
+           */
+          items: {
+            type: Array,
+            notify: true,
+            value: [],
+          },
+        };
+      }
+
+      ready() {
+        super.ready();
+        this.client = new elasticsearch.Client({
+          host: this.host,
+          log: this.info,
+        });
+      }
+
+      _search() {
+        if (this.query.length > 2) {
+          this.client.search({
+            index: this.index,
+            type: this.type,
+            q: 'name:*'+this.query+'*',
+          }, function(error, body) {
+            if(error) console.log(error );
+            this.response = body;
+            this.items = body.hits.hits;
+          }.bind(this));
+        }
+      }
+    }
+
+    // Register the new element with the browser
+    customElements.define(ElasticElement.is, ElasticElement);
+  </script>
+</dom-module>

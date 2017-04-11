@@ -1,0 +1,62 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="../elastic-search/elastic-search.html">
+
+<dom-module id="bb-search">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <elastic-search host="https://paas:6ecca56a4c05401a7932c96bd8763a0f@nori-us-east-1.searchly.com"
+                    log="trace"
+                    index="beer"
+                    type="ds053300_mlab_com_190d"
+                    response="{{beer}}">
+    </elastic-search>
+
+    <template is="dom-repeat" items="{{beer.hits.hits}}" >
+      <div class="card">
+        <div class="circle"><img src="{{item._source.img}}" ></div>
+        <h1>{{item._source.name}}</h1>
+        <p><b>Brewery: </b>{{item._source.brewery}}</p>
+        <p><b>Style: </b>{{item._source.style}}</p>
+        <p style="font-size: 16px;"><b>IBU: </b>{{item._source.ibu}}</p>
+        <p style="font-size: 16px;"><b>ABV: </b>{{item._source.abv}}</p>
+      </div>
+    </template>
+
+  </template>
+
+  <script>
+    class BBSearch extends Polymer.Element {
+      static get is() { return 'bb-search'; }
+      static get properties() {
+        return {
+            response: {
+              type: Object,
+              value: null,
+              notify: true,
+            },
+        };
+      }
+    }
+
+    window.customElements.define(BBSearch.is, BBSearch);
+  </script>
+</dom-module>

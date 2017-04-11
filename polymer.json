@@ -1,0 +1,33 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/beer-belly/beerbelly-app.html",
+  "fragments": [
+    "src/beer-belly/bb-geolocation.html",
+    "src/beer-belly/bb-beers.html",
+    "src/beer-belly/bb-search.html",
+    "src/beer-belly/bb-login.html",
+    "src/elastic-search/elastic-search.html",
+    "src/elastic-search/elasticsearch-script.html",
+    "src/beer-belly/bb-view404.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "firebase.json",
+    "database.rules.json",
+    "bower_components/webcomponentsjs/*.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2"]
+  },
+
+  "builds": [{
+    "js": {"minify": true},
+    "css": {"minify": true},
+    "html": {"minify": true}
+  }]
+}

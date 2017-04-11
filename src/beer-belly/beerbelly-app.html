@@ -1,0 +1,278 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--Login Control-->
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="../../bower_components/polymerfire/polymerfire.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+
+<link rel="import" href="bb-login.html">
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-avatar/paper-avatar.html">
+<link rel="import" href="bb-icons.html">
+
+<dom-module id="beerbelly-app">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #263238;
+        --app-secondary-color: white;
+        display: block;
+      }
+
+      app-drawer {
+        --app-drawer-scrim-background: #263238;
+        --app-drawer-content-container: {
+          background-color: #F5F5F6;
+        }
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      app-header {
+        color: var(--app-secondary-color);
+        background-color: var(--app-primary-color);
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: var(--app-primary-color);
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+        font-weight: bold;
+      }
+
+      .drawer-list a {
+        @apply(--iron-icon-fill-color)
+        @apply(--paper-font-menu);
+        display: block;
+        padding: 0 20px;
+        text-decoration: none;
+        color: #000a12;
+        /*line-height: 40px;*/
+
+      }
+
+      .drawer-list span {
+        padding-left: 24px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: #4f5b62;
+      }
+
+
+      /* Login Control Style */
+      paper-fab {
+        position: absolute;
+        bottom: 1em;
+        right: 1em;
+      }
+      /* Fim Login Control*/
+
+
+
+      /* Avatar Style */
+
+      .avatar-container {
+        background-color: var(--app-primary-color);
+        background-image: url('../../images/material-bg.png');
+        position: relative;
+        padding-bottom: calc(100% * 9 / 16);
+        height: 0;
+        /*margin: 20px auto;*/
+      }
+      .avatar-img {
+        padding: 20px 20px;
+      }
+      .contact-info {
+        padding: 0 20px;
+        text-align: center;
+      }
+      .contact-info {
+        @apply(--paper-font-body1);
+        color: var(--app-secondary-color);
+        text-align: left;
+      }
+      .contact-info .name {
+        @apply(--paper-font-body2);
+
+      }
+
+      /* Fim Avatar Styek*/
+
+    </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location >
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+
+
+    <app-drawer-layout fullbleed>
+
+      <bb-login
+        on-sign-in="signIn"
+        signed-in="[[signedIn]]"
+        disabled="[[!online]]">
+      </bb-login>
+
+      <firebase-auth
+        id="auth"
+        app-name="belly"
+        provider="google"
+        signed-in="{{signedIn}}"
+        user="{{user}}">
+      </firebase-auth>
+
+      <!-- Drawer content -->
+      <app-drawer id="drawer" slot="drawer">
+            <div class="avatar-container">
+              <div class="avatar-img">
+                <paper-avatar image-src="[[user.photoURL]]"></paper-avatar>
+              </div>
+              <div class="contact-info">
+                <div class="name">{{user.displayName}}</div>
+                <div class="email">[[user.email]]</div>
+              </div>
+            </div>
+          <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+            <a name="bb-search" href="#/bb-search">
+              <iron-icon icon="search" class="icon" ></iron-icon><span >Beer Search</span></a>
+            <a name="bb-geolocation" href="#/bb-geolocation">
+              <iron-icon icon="room" class="icon" ></iron-icon><span>Geo-location</span>
+            </a>
+          </iron-selector>
+      </app-drawer>
+
+      <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="bb-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>Beer Belly</div>
+            <paper-icon-button
+              icon="[[computeLockIcon(signedIn)]]"
+              disabled="[[!signedIn]]"
+              on-tap="signOut">
+            </paper-icon-button>
+          </app-toolbar>
+        </app-header>
+
+        <iron-pages
+          selected="[[page]]"
+          attr-for-selected="name"
+          fallback-selection="view404"
+          role="main">
+          <bb-geolocation name="bb-geolocation"></bb-geolocation>
+          <bb-beers name="bb-beers"></bb-beers>
+          <bb-search name="bb-search"></bb-search>
+          <bb-view404 name="bb-view404"></bb-view404>
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+  </template>
+
+  <script>
+    class BeerBellyApp extends Polymer.Element {
+
+      static get is() {
+        return 'beerbelly-app';
+      }
+
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged',
+          },
+          signedIn: {
+            type: Boolean,
+            notify: true,
+            value: false,
+          },
+          user: {
+            type: Object,
+            notify: true,
+            value: null,
+          },
+        };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ];
+      }
+      signIn() {
+        this.$.auth.signInWithPopup();
+      }
+      signOut() {
+        this.$.auth.signOut();
+      }
+      computeLockIcon(signedIn) {
+        return signedIn ? 'lock-open' : 'lock';
+      }
+
+      _routePageChanged(page) {
+        // Polymer 2.0 will call with `undefined` on initialization.
+        // Ignore until we are properly called with a string.
+        if (page === undefined) {
+          return;
+        }
+
+        // If no page was found in the route data, page will be an empty string.
+        // Deault to 'bb-geolocation' in that case.
+        this.page = page || 'bb-search';
+
+        // Close a non-persistent drawer when the page & route are changed.
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+      }
+
+      _pageChanged(page) {
+        // Load page import on demand. Show 404 page if fails
+        var resolvedPageUrl = this.resolveUrl(page + '.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showPage404.bind(this),
+            true);
+      }
+
+      _showPage404() {
+        this.page = 'view404';
+      }
+    }
+    window.customElements.define(BeerBellyApp.is, BeerBellyApp);
+  </script>
+</dom-module>
