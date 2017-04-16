@@ -27,7 +27,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     log="trace"
                     index="beer"
                     type="ds053300_mlab_com_190d"
-                    response="{{beer}}">
+                    response="{{beer}}"
+                    placeholder="Type a beer name to search"
+
+    >
     </elastic-search>
 
     <template is="dom-repeat" items="{{beer.hits.hits}}" >

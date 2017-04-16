@@ -191,13 +191,17 @@
       }
 
       _search() {
+        if(this.query.length === 0) {
+          this.response = undefined;
+          this.items = [];
+        } else
         if (this.query.length > 2) {
           this.client.search({
             index: this.index,
             type: this.type,
             q: 'name:*'+this.query+'*',
           }, function(error, body) {
-            if(error) console.log(error );
+            if(error)console.error(error)
             this.response = body;
             this.items = body.hits.hits;
           }.bind(this));

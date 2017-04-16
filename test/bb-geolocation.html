@@ -25,16 +25,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
     <test-fixture id="BasicView">
       <template>
-        <my-view1></my-view1>
+        <bb-geolocation></bb-geolocation>
       </template>
     </test-fixture>
 
     <script>
-      suite('my-view1 tests', function() {
-        test('Number in circle should be 1', function() {
-          var myView = fixture('BasicView');
-          var circle = myView.shadowRoot.querySelector('.circle');
-          assert.equal(circle.textContent, '1');
+      suite('bb-geolocation tests', function() {
+        test('Title should be Location', function() {
+          var bbGeolocation = fixture('BasicView');
+          var title = bbGeolocation.shadowRoot.querySelector('h1');
+          assert.equal(title.textContent, 'Location');
+        });
+
+        test('Latitude should not be undefined', function() {
+          var bbGeolocation = fixture('BasicView');
+          var latitude = bbGeolocation.shadowRoot.querySelector('h2 span');
+          assert.notEqual(latitude, undefined);
         });
       });
     </script>
